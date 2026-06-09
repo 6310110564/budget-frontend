@@ -1,33 +1,5 @@
 <template>
-  <div class="min-h-screen bg-slate-50">
-    <!-- Navbar -->
-    <nav class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
-      <div
-        class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between"
-      >
-        <div class="flex items-center gap-2">
-          <div
-            class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center shadow-md shadow-indigo-500/30"
-          >
-            <span class="text-base">💰</span>
-          </div>
-          <span class="font-bold text-slate-800 text-base">รายรับรายจ่าย</span>
-        </div>
-        <div class="flex items-center gap-3">
-          <span class="text-sm text-slate-500 hidden sm:block">{{
-            auth.user?.name
-          }}</span>
-          <button
-            class="text-sm px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
-            @click="auth.logout()"
-          >
-            ออกจากระบบ
-          </button>
-        </div>
-      </div>
-    </nav>
-
-    <div class="max-w-2xl mx-auto px-4 py-6 space-y-4">
+  <div class="max-w-2xl mx-auto space-y-4">
       <!-- Month / Year filter -->
       <!-- <div class="flex items-center gap-2">
         <select v-model="selectedMonth" @change="load"
@@ -222,11 +194,10 @@
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script setup>
-definePageMeta({ middleware: "auth" });
+definePageMeta({ layout: 'admin', middleware: ['auth'] });
 
 const auth = useAuthStore();
 const api = useApi();

@@ -1,107 +1,170 @@
 <template>
-  <div>
+  <div class="min-h-screen bg-slate-50">
     <!-- Navbar -->
-    <nav style="background:var(--surface); border-bottom:0.5px solid var(--border); padding:0 1rem;">
-      <div class="container" style="display:flex; align-items:center; justify-content:space-between; height:56px;">
-        <span style="font-weight:600; font-size:16px;">💰 รายรับรายจ่าย</span>
-        <div style="display:flex; align-items:center; gap:12px;">
-          <span style="font-size:13px; color:var(--text2);">{{ auth.user?.name }}</span>
-          <button class="btn" style="padding:6px 12px; font-size:12px;" @click="auth.logout()">ออกจากระบบ</button>
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
+      <div class="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 bg-gradient-to-br from-indigo-500 to-violet-600 rounded-xl flex items-center justify-center shadow-md shadow-indigo-500/30">
+            <span class="text-base">💰</span>
+          </div>
+          <span class="font-bold text-slate-800 text-base">รายรับรายจ่าย</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-sm text-slate-500 hidden sm:block">{{ auth.user?.name }}</span>
+          <button
+            class="text-sm px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+            @click="auth.logout()"
+          >
+            ออกจากระบบ
+          </button>
         </div>
       </div>
     </nav>
 
-    <div class="container" style="padding-top:1.5rem; padding-bottom:2rem;">
-      <!-- Month filter -->
-      <div style="display:flex; gap:8px; margin-bottom:1.25rem; align-items:center;">
-        <select v-model="selectedMonth" style="width:auto; font-size:13px;" @change="load">
+    <div class="max-w-2xl mx-auto px-4 py-6 space-y-4">
+      <!-- Month / Year filter -->
+      <div class="flex items-center gap-2">
+        <select v-model="selectedMonth" @change="load"
+          class="px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/20 transition-all cursor-pointer"
+        >
           <option v-for="m in months" :key="m.value" :value="m.value">{{ m.label }}</option>
         </select>
-        <select v-model="selectedYear" style="width:auto; font-size:13px;" @change="load">
+        <select v-model="selectedYear" @change="load"
+          class="px-3 py-2 text-sm rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/20 transition-all cursor-pointer"
+        >
           <option v-for="y in years" :key="y" :value="y">{{ y }}</option>
         </select>
       </div>
 
       <!-- Summary cards -->
-      <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:1.25rem;">
-        <div class="card" style="padding:1rem;">
-          <div style="font-size:12px; color:var(--text2); margin-bottom:4px;">รายรับ</div>
-          <div style="font-size:20px; font-weight:600; color:var(--income);">{{ fmt(summary.total_income) }}</div>
+      <div class="grid grid-cols-3 gap-3">
+        <div class="bg-gradient-to-br from-emerald-400 to-teal-500 rounded-2xl p-4 text-white shadow-md shadow-emerald-400/30">
+          <p class="text-xs font-medium text-white/80 mb-1">รายรับ</p>
+          <p class="text-sm font-bold leading-tight sm:text-base">{{ fmt(summary.total_income) }}</p>
         </div>
-        <div class="card" style="padding:1rem;">
-          <div style="font-size:12px; color:var(--text2); margin-bottom:4px;">รายจ่าย</div>
-          <div style="font-size:20px; font-weight:600; color:var(--expense);">{{ fmt(summary.total_expense) }}</div>
+        <div class="bg-gradient-to-br from-rose-400 to-red-500 rounded-2xl p-4 text-white shadow-md shadow-rose-400/30">
+          <p class="text-xs font-medium text-white/80 mb-1">รายจ่าย</p>
+          <p class="text-sm font-bold leading-tight sm:text-base">{{ fmt(summary.total_expense) }}</p>
         </div>
-        <div class="card" style="padding:1rem;">
-          <div style="font-size:12px; color:var(--text2); margin-bottom:4px;">คงเหลือ</div>
-          <div style="font-size:20px; font-weight:600;" :style="{ color: summary.balance >= 0 ? 'var(--income)' : 'var(--expense)' }">
-            {{ fmt(summary.balance) }}
-          </div>
+        <div
+          class="bg-gradient-to-br rounded-2xl p-4 text-white shadow-md"
+          :class="summary.balance >= 0
+            ? 'from-indigo-400 to-violet-500 shadow-indigo-400/30'
+            : 'from-orange-400 to-red-500 shadow-orange-400/30'"
+        >
+          <p class="text-xs font-medium text-white/80 mb-1">คงเหลือ</p>
+          <p class="text-sm font-bold leading-tight sm:text-base">{{ fmt(summary.balance) }}</p>
         </div>
       </div>
 
-      <!-- Add transaction -->
-      <div class="card" style="margin-bottom:1.25rem;">
-        <div style="font-size:14px; font-weight:600; margin-bottom:1rem;">เพิ่มรายการใหม่</div>
-        <div class="form-row form-row-2" style="margin-bottom:8px;">
-          <div class="form-group" style="margin:0">
-            <input v-model="form.name" placeholder="ชื่อรายการ" />
-          </div>
-          <div class="form-group" style="margin:0">
-            <input v-model.number="form.amount" type="number" placeholder="จำนวนเงิน (฿)" min="0" step="0.01" />
-          </div>
+      <!-- Add transaction form -->
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5">
+        <h2 class="text-sm font-semibold text-slate-800 mb-4">เพิ่มรายการใหม่</h2>
+
+        <div class="grid grid-cols-2 gap-3 mb-3">
+          <input v-model="form.name" placeholder="ชื่อรายการ"
+            class="px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/20 transition-all"
+          />
+          <input v-model.number="form.amount" type="number" placeholder="จำนวนเงิน (฿)" min="0" step="0.01"
+            class="px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/20 transition-all"
+          />
         </div>
-        <div class="form-row form-row-2" style="margin-bottom:10px;">
-          <select v-model="form.type" @change="form.category = ''">
+
+        <div class="grid grid-cols-2 gap-3 mb-3">
+          <select v-model="form.type" @change="form.category = ''"
+            class="px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/20 transition-all cursor-pointer"
+          >
             <option value="income">💰 รายรับ</option>
             <option value="expense">💸 รายจ่าย</option>
           </select>
-          <select v-model="form.category">
+          <select v-model="form.category"
+            class="px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/20 transition-all cursor-pointer"
+          >
             <option value="">เลือกหมวดหมู่</option>
             <option v-for="c in filteredCategories" :key="c.id" :value="c.name">{{ c.icon }} {{ c.name }}</option>
           </select>
         </div>
-        <div class="form-row form-row-2" style="margin-bottom:10px;">
-          <input v-model="form.date" type="date" />
-          <input v-model="form.note" placeholder="หมายเหตุ (ไม่บังคับ)" />
+
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <input v-model="form.date" type="date"
+            class="px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/20 transition-all"
+          />
+          <input v-model="form.note" placeholder="หมายเหตุ (ไม่บังคับ)"
+            class="px-3.5 py-2.5 text-sm rounded-xl border border-slate-200 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-indigo-400 focus:ring-2 focus:ring-indigo-400/20 transition-all"
+          />
         </div>
-        <div style="display:flex; gap:8px;">
-          <button class="btn btn-income" style="flex:1; justify-content:center;" @click="addTx('income')">+ รายรับ</button>
-          <button class="btn btn-expense" style="flex:1; justify-content:center;" @click="addTx('expense')">+ รายจ่าย</button>
+
+        <div class="flex gap-2">
+          <button @click="addTx('income')"
+            class="flex-1 py-2.5 text-sm font-semibold rounded-xl bg-emerald-500 hover:bg-emerald-600 active:scale-[.98] text-white transition-all shadow-md shadow-emerald-500/25"
+          >
+            + รายรับ
+          </button>
+          <button @click="addTx('expense')"
+            class="flex-1 py-2.5 text-sm font-semibold rounded-xl bg-rose-500 hover:bg-rose-600 active:scale-[.98] text-white transition-all shadow-md shadow-rose-500/25"
+          >
+            + รายจ่าย
+          </button>
         </div>
-        <div v-if="formError" style="margin-top:8px; font-size:13px; color:var(--expense);">{{ formError }}</div>
+
+        <p v-if="formError" class="mt-3 text-sm text-rose-500 flex items-center gap-1.5">
+          ⚠️ {{ formError }}
+        </p>
       </div>
 
       <!-- Transaction list -->
-      <div class="card">
-        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
-          <div style="font-size:14px; font-weight:600;">รายการทั้งหมด</div>
-          <select v-model="filterType" style="width:auto; font-size:12px; padding:5px 8px;" @change="load">
+      <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 pb-2">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-sm font-semibold text-slate-800">รายการทั้งหมด</h2>
+          <select v-model="filterType" @change="load"
+            class="px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-white focus:outline-none focus:border-indigo-400 transition-all cursor-pointer"
+          >
             <option value="">ทั้งหมด</option>
             <option value="income">รายรับ</option>
             <option value="expense">รายจ่าย</option>
           </select>
         </div>
 
-        <div v-if="loading" style="text-align:center; padding:2rem; color:var(--text3); font-size:13px;">กำลังโหลด...</div>
-        <div v-else-if="!transactions.length" style="text-align:center; padding:2rem; color:var(--text3); font-size:13px;">ยังไม่มีรายการ</div>
-        <div v-else>
-          <div v-for="tx in transactions" :key="tx.id"
-            style="display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:0.5px solid var(--border); font-size:13px;">
-            <div style="display:flex; align-items:center; gap:10px;">
-              <div style="width:8px; height:8px; border-radius:50%; flex-shrink:0;"
-                :style="{ background: tx.type === 'income' ? 'var(--income)' : 'var(--expense)' }"></div>
-              <div>
-                <div style="font-weight:500;">{{ tx.name }}</div>
-                <div style="font-size:11px; color:var(--text2);">{{ tx.category }} · {{ tx.date }}</div>
-              </div>
+        <div v-if="loading" class="py-12 text-center text-sm text-slate-400">
+          <div class="inline-block w-5 h-5 border-2 border-slate-200 border-t-indigo-500 rounded-full animate-spin mb-2"></div>
+          <p>กำลังโหลด...</p>
+        </div>
+
+        <div v-else-if="!transactions.length" class="py-12 text-center">
+          <p class="text-3xl mb-2">📭</p>
+          <p class="text-sm text-slate-400">ยังไม่มีรายการในเดือนนี้</p>
+        </div>
+
+        <div v-else class="-mx-1 mb-2">
+          <div
+            v-for="tx in transactions" :key="tx.id"
+            class="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-slate-50 transition-colors group"
+          >
+            <div
+              class="w-9 h-9 rounded-xl flex items-center justify-center text-base font-semibold flex-shrink-0"
+              :class="tx.type === 'income' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'"
+            >
+              {{ tx.type === 'income' ? '↑' : '↓' }}
             </div>
-            <div style="display:flex; align-items:center; gap:8px;">
-              <span :style="{ color: tx.type === 'income' ? 'var(--income)' : 'var(--expense)', fontWeight: 600 }">
+
+            <div class="flex-1 min-w-0">
+              <p class="text-sm font-medium text-slate-800 truncate">{{ tx.name }}</p>
+              <p class="text-xs text-slate-400 mt-0.5">{{ tx.category }} · {{ tx.date }}</p>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <span
+                class="text-sm font-semibold"
+                :class="tx.type === 'income' ? 'text-emerald-600' : 'text-rose-600'"
+              >
                 {{ tx.type === 'income' ? '+' : '-' }}{{ fmt(tx.amount) }}
               </span>
-              <button style="background:none; border:none; cursor:pointer; color:var(--text3); font-size:16px; padding:2px 6px; border-radius:6px;"
-                @click="deleteTx(tx.id)">×</button>
+              <button
+                @click="deleteTx(tx.id)"
+                class="w-7 h-7 rounded-lg text-slate-300 hover:text-rose-500 hover:bg-rose-50 transition-colors flex items-center justify-center text-lg leading-none"
+              >
+                ×
+              </button>
             </div>
           </div>
         </div>

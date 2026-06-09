@@ -132,16 +132,10 @@
 
         <div class="flex gap-2">
           <button
-            @click="addTx('income')"
-            class="flex-1 py-2.5 text-sm font-semibold rounded-xl bg-emerald-500 hover:bg-emerald-600 active:scale-[.98] text-white transition-all shadow-md shadow-emerald-500/25"
+            @click="addTx()"
+            class="flex-1 py-2.5 text-sm font-semibold rounded-xl bg-emerald-400 hover:bg-emerald-600 active:scale-[.98] text-white transition-all shadow-md shadow-emerald-500/25"
           >
-            + รายรับ
-          </button>
-          <button
-            @click="addTx('expense')"
-            class="flex-1 py-2.5 text-sm font-semibold rounded-xl bg-rose-500 hover:bg-rose-600 active:scale-[.98] text-white transition-all shadow-md shadow-rose-500/25"
-          >
-            + รายจ่าย
+            + เพิ่มรายการ
           </button>
         </div>
 
@@ -319,9 +313,8 @@ async function load() {
   }
 }
 
-async function addTx(forceType) {
+async function addTx() {
   formError.value = "";
-  form.type = forceType;
   if (!form.name || !form.amount || !form.category) {
     formError.value = "กรุณากรอกชื่อรายการ จำนวนเงิน และหมวดหมู่";
     return;

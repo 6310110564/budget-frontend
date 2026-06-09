@@ -146,19 +146,25 @@ function fmt(n) {
   return '฿' + Number(n || 0).toLocaleString('th-TH', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
 }
 
+async function loadCategories() {
+  try {
+    categories.value = await api.get('/api/categories')
+  } catch (e) {
+    console.error('loadCategories:', e)
+  }
+}
+
 async function load() {
   loading.value = true
   try {
     const params = new URLSearchParams({ month: selectedMonth.value, year: selectedYear.value })
     if (filterType.value) params.set('type', filterType.value)
-    const [txs, sum, cats] = await Promise.all([
+    const [txs, sum] = await Promise.all([
       api.get(`/api/transactions?${params}`),
-      api.get(`/api/summary?month=${selectedMonth.value}&year=${selectedYear.value}`),
-      api.get('/api/categories')
+      api.get(`/api/summary?month=${selectedMonth.value}&year=${selectedYear.value}`)
     ])
     transactions.value = txs
     summary.value = sum
-    categories.value = cats
   } catch (e) {
     console.error(e)
   } finally {
@@ -192,5 +198,8 @@ async function deleteTx(id) {
   }
 }
 
-onMounted(load)
+onMounted(async () => {
+  await loadCategories()
+  await load()
+})
 </script>

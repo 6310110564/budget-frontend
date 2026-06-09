@@ -161,7 +161,7 @@ async function load() {
     if (filterType.value) params.set('type', filterType.value)
     const [txs, sum] = await Promise.all([
       api.get(`/api/transactions?${params}`),
-      api.get(`/api/summary?month=${selectedMonth.value}&year=${selectedYear.value}`)
+      api.get(`/api/transactions/summary?month=${selectedMonth.value}&year=${selectedYear.value}`)
     ])
     transactions.value = txs
     summary.value = sum

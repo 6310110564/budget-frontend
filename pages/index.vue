@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-2xl mx-auto space-y-4">
+  <div class="space-y-4">
       <!-- Month / Year filter -->
       <!-- <div class="flex items-center gap-2">
         <select v-model="selectedMonth" @change="load"

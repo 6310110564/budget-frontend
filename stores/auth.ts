@@ -1,4 +1,7 @@
 import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
+import { useCookie, navigateTo } from '#imports'
+import { useApi } from '~/composables/useApi'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref(null)
@@ -7,15 +10,15 @@ export const useAuthStore = defineStore('auth', () => {
 
   const isLoggedIn = computed(() => !!token.value)
 
-  async function login(email, password) {
-    const data = await api.post('/api/auth/login', { email, password })
+  async function login(email: string, password: string) {
+    const data = await api.post('/v1/auth/login', { email, password })
     token.value = data.token
     user.value = data.user
     return data
   }
 
-  async function register(name, email, password) {
-    const data = await api.post('/api/auth/register', { name, email, password })
+  async function register(name: string, email: string, password: string) {
+    const data = await api.post('/v1/auth/register', { name, email, password })
     token.value = data.token
     user.value = data.user
     return data
@@ -24,7 +27,7 @@ export const useAuthStore = defineStore('auth', () => {
   async function fetchMe() {
     if (!token.value) return
     try {
-      user.value = await api.get('/api/auth/me')
+      user.value = await api.get('/v1/auth/me')
     } catch {
       token.value = null
       user.value = null

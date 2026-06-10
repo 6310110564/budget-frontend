@@ -255,7 +255,7 @@ function fmt(n) {
 
 async function loadCategories() {
   try {
-    categories.value = await api.get("/api/categories");
+    categories.value = await api.get("/v1/categories");
   } catch (e) {
     console.error("loadCategories:", e);
   }
@@ -270,9 +270,9 @@ async function load() {
     });
     if (filterType.value) params.set("type", filterType.value);
     const [txs, sum] = await Promise.all([
-      api.get(`/api/transactions?${params}`),
+      api.get(`/v1/transactions?${params}`),
       api.get(
-        `/api/transactions/summary?month=${selectedMonth.value}&year=${selectedYear.value}`,
+        `/v1/transactions/summary?month=${selectedMonth.value}&year=${selectedYear.value}`,
       ),
     ]);
     transactions.value = txs;
@@ -291,7 +291,7 @@ async function addTx() {
     return;
   }
   try {
-    await api.post("/api/transactions", { ...form });
+    await api.post("/v1/transactions", { ...form });
     form.name = "";
     form.amount = "";
     form.note = "";
@@ -304,7 +304,7 @@ async function addTx() {
 async function deleteTx(id) {
   if (!confirm("ต้องการลบรายการนี้ใช่ไหม?")) return;
   try {
-    await api.del(`/api/transactions/${id}`);
+    await api.del(`/v1/transactions/${id}`);
     await load();
   } catch (e) {
     alert(e.message);

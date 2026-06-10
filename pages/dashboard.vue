@@ -235,8 +235,8 @@ async function load() {
     try {
         const params = new URLSearchParams({ month: selectedMonth.value, year: selectedYear.value });
         const [txs, sum] = await Promise.all([
-            api.get(`/api/transactions?${params}`),
-            api.get(`/api/transactions/summary?month=${selectedMonth.value}&year=${selectedYear.value}`),
+            api.get(`/v1/transactions?${params}`),
+            api.get(`/v1/transactions/summary?month=${selectedMonth.value}&year=${selectedYear.value}`),
         ]);
         transactions.value = txs;
         summary.value = sum;
